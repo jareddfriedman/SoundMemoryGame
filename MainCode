@@ -1,0 +1,350 @@
+var minor2 = 1.059;
+var minor3 = 1.189;
+var perf4 = 1.335;
+var perf5 = 1.498;
+
+var ints = [];
+
+var roots = [220, 233.08, 246.94, 261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.3];
+
+var cards = [];
+
+var cards2 = [];
+
+var cardcat = [];
+
+var loaded = false;
+
+var osc;
+
+var osc2;
+
+var oscNo;
+
+var oscYes;
+
+var t = 0;
+
+var tNo = 0;
+
+var tYes = 0;
+
+var actX;
+var actY;
+var actFreq;
+var actRel;
+var actCol1;
+var actCol2;
+
+var gotIt = true;
+
+var checkId;
+
+var solvedCards = 0;
+
+var showdown = false;
+
+var loadNum = 25;
+
+var youWin = false;
+
+var tWin = 0;
+
+function setup() {
+  createCanvas(720, 480)
+  ints = [minor2, minor3, perf4, perf5];
+  
+  makeCards();
+  
+  makeOsc();
+  
+}
+
+function draw() {
+  background(0);
+    
+  displayCards();
+  
+  cardAction();
+  
+  negatory();
+  
+  hooray();
+  
+  winGame();
+  
+}
+
+function cardAction() {
+  if (t >= 1) {
+    t++;
+  }
+  
+  if (t >=1 && t <30) {
+
+    push();
+    colorMode(HSB, 292, 100, 100, 1);
+    fill(actCol1, 100, 100, 1);
+    rect(actX, actY, 120, 120);
+    pop();
+  }
+  
+  if (t === 2) {
+    osc.freq(actFreq);
+    osc.amp(0.5, .05);
+  }
+  
+  if (t >=30 && t < 45) {
+    push();
+    colorMode(HSB, 292, 100, 100, 1);
+    fill(actCol1, 100, 100, 1);
+    rect(actX, actY, 120, 120);
+    pop();
+  }
+  
+  if (t === 30){
+    osc.freq(actFreq);
+    osc.amp(0, .05);
+  }
+  
+  if (t >=45 && t <75) {
+    push();
+    colorMode(HSB, 292, 100, 100, 1);
+    fill(actCol2, 100, 100, 1);
+    rect(actX, actY, 120, 120);
+    pop();
+  }
+
+  if (t === 45) {
+    osc.freq(actFreq * actRel);
+    osc.amp(0.5, .05);
+  }
+  
+  if (t >=75) {
+    osc.freq(actFreq * actRel);
+    osc.amp(0, .05);
+    push();
+    colorMode(HSB, 292, 100, 100, 1);
+    fill(actCol2, 0, 0, 1);
+    rect(actX, actY, 120, 120);
+    pop();
+  }
+  
+  if (t >= 75) {
+    if (showdown === true) {
+    if (!gotIt) {
+      tNo = 1;
+    } else {
+      tYes = 1;
+    }
+    showdown = false;
+    loaded = false;
+    }
+    t = 0;
+  }
+}
+
+function negatory() {
+  if (tNo >= 1) {
+    tNo++;
+  }
+  
+  if (tNo === 4) {
+    oscNo.amp(0.5);
+  }
+  
+  if (tNo === 10) {
+    oscNo.amp(0);
+  }
+  
+  if (tNo === 13) {
+    oscNo.amp(0.5);
+  }
+  
+  if (tNo === 19) {
+    oscNo.amp(0);
+    tNo = 0;
+  }
+}
+
+function hooray() {
+  
+  if (tYes >= 1) {
+    tYes++;
+  }
+  
+  if (tYes >= 1 && tYes <4) {
+    oscYes.amp(0);
+    
+          for (var j = 0; j<24; j++) {
+            if (cardcat[j].id === checkId) {
+              cardcat[j].done = true;
+            }
+          }
+  }
+  
+  if (tYes === 4) {
+    oscYes.amp(0.3, 0.1);
+  }
+  
+  if (tYes === 12) {
+    oscYes.amp(0, 0.02);
+  }
+  
+  if (tYes === 18) {
+    oscYes.amp(0.3, 0.1);
+  }
+  
+  if (tYes === 43) {
+    oscYes.amp(0, 0.02);
+    tYes = 0;
+  }
+}
+
+function makeOsc() {
+  osc = new p5.Oscillator();
+  osc.setType('sine');
+  osc.freq(240);
+  osc.amp(0);
+  osc.start();
+  
+  osc2 = new p5.Oscillator();
+  osc2.setType('sine');
+  osc2.freq(480);
+  osc2.amp(0);
+  osc2.start();
+  
+  oscNo = new p5.Oscillator();
+  oscNo.setType('square');
+  oscNo.freq(82.41);
+  oscNo.amp(0);
+  oscNo.start();
+  
+  oscYes = new p5.Oscillator();
+  oscYes.setType('triangle');
+  oscYes.freq(587.33);
+  oscYes.amp(0);
+  oscYes.start();
+}
+
+function displayCards() {
+  for (var i = 0; i<24; i++) {
+    fill(125);
+    strokeWeight(2);
+    stroke(255);
+    rect(cardcat[i].x, cardcat[i].y, 120, 120);
+  }
+  
+  for (var j = 0; j<24; j++) {
+    if (cardcat[j].done === true) {
+      push();
+    fill(225);
+    strokeWeight(2);
+    stroke(255);
+    rect(cardcat[j].x, cardcat[j].y, 120, 120);
+      pop();
+    }
+  }
+  
+}
+
+function makeCards() {
+  for (var i = 0; i<12; i++) {
+    
+    shuffle(ints, true);
+    shuffle(roots, true);
+    cards.push(new card(roots[0], ints[0], i));
+    roots.splice(0, 1);
+  }
+  
+  for (var j = 0; j<12; j++) {
+    cards2.push(new card(cards[j].fre, cards[j].rel, cards[j].id));
+  }
+  
+  cardcat = concat(cards, cards2);
+  
+  shuffle(cardcat, true);
+  
+  for (var i = 0; i<24; i+=4) {
+   for (var j = 0; j<4; j++) {
+     cardcat[i+j].x = i * 30;
+     cardcat[i+j].y = j * 120;
+     cardcat[i+j].absOrd = i + j;
+   } 
+  }
+}
+
+function card(frequ, rela, slf) {
+  this.x;
+  this.y;
+  this.fre = frequ;
+  this.rel = rela;
+  this.id = slf;
+  this.col1 = int(frequ - 220);
+  this.col2 = int(this.col1 * rela);
+  this.done = false;
+  this.absOrd;
+}
+
+function flipACard(xPos, yPos, frequ, rel, color1, color2) {
+  
+  actX = xPos;
+  actY = yPos;
+  actFreq = frequ;
+  actRel = rel;
+  actCol1 = color1;
+  actCol2 = color2;
+  
+  t = 1;
+  
+}
+
+function winGame() {
+  if (solvedCards >= 24) {
+    tWin++;
+    for (var i = 0; i<24; i++) {
+      if (abs(cardcat[i].absOrd - ((tWin % 24))) <= 6){
+      push();
+      colorMode(HSB, 292, 100, 100, 1);
+      fill (cardcat[i].col2, 100, 100, 1);
+      rect(cardcat[i].x, cardcat[i].y, 120, 120);
+      pop();
+      }
+    }
+  fill(0, 0, 0);
+  textFont('Helvetica')
+  textStyle(BOLD);
+  textSize(120);
+  textAlign(CENTER);
+  text("You Win!!", width/2, height/2);
+  fill(255, 0, 0);
+  textFont('Helvetica')
+  textStyle(BOLD);
+  textSize(120);
+  noStroke();
+  textAlign(CENTER);
+  text("You Win!!", width/2 + 5, height/2 + 5);
+  }
+}
+
+function mousePressed() {
+  for (var i = 0; i<24; i++) {
+    if (mouseX >= cardcat[i].x && mouseX < (cardcat[i].x + 120) && mouseY >= cardcat[i].y && mouseY < (cardcat[i].y + 120) && cardcat[i].absOrd != loadNum) {
+      flipACard(cardcat[i].x, cardcat[i].y, cardcat[i].fre, cardcat[i].rel, cardcat[i].col1, cardcat[i].col2);
+      if (loaded === true) {
+        showdown = true;
+        if (cardcat[i].id === checkId) {
+          gotIt = true;
+          solvedCards += 2;
+        } else {
+          gotIt = false;
+        }
+        loadNum = 25;
+      } else {
+        checkId = cardcat[i].id;
+        loadNum = cardcat[i].absOrd;
+        loaded = true;
+      }
+    }
+  }
+}
